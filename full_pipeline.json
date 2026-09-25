@@ -58,8 +58,12 @@
     },
     "source_outputs": [
         {
+            "output_type": "cutout",
+            "directory": "/home/rv4999/testing_pipeline/pngs"
+        },
+        {
             "output_type": "pickle",
-            "directory": "."
+            "directory": "/home/rv4999/testing_pipeline/results"
         }
     ]
 }
