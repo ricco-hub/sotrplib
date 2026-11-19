@@ -1,11 +1,11 @@
 {
     "maps": {
             "map_generator_type": "mapcat_database",
-            "instrument": "ACT",
+            "instrument": "SOLAT",
             "map_type": "rhokappa",
             "map_units": "mJy",
-            "start_time": "2017-05-10T00:00:00Z",
-            "end_time": "2017-05-12T12:00:00Z",
+            "start_time": "2026-05-01T00:00:00Z",
+            "end_time": "2026-05-07T00:00:00Z",
             "frequency": "f090",
             "rerun": "True"
         },
@@ -33,17 +33,10 @@
             "postprocessor_type": "flatfield",
             "sigma_val": 5.0,
             "tile_size": "0.5 deg"
-        },
-        {
-            "postprocessor_type":"galaxy_mask",
-            "mask_path": "/scratch/gpfs/SIMONSOBS/users/amfoster/so/sotrplib/act_dust_mask.fits"
         }
     ],
     "source_subtractor": {
             "subtractor_type": "photutils"
-    },
-    "blind_search": {
-            "search_type": "photutils"
     },
     "forced_photometry": {
         "photometry_type": "lmfit",
@@ -59,11 +52,17 @@
     "source_outputs": [
         {
             "output_type": "cutout",
-            "directory": "/home/rv4999/testing_pipeline/pngs"
+            "directory": "/scratch/gpfs/SIMONSOBS/users/rv4999/testing_pipeline/asteroid_lcurves/ceres_so/pngs"
         },
         {
             "output_type": "pickle",
-            "directory": "/home/rv4999/testing_pipeline/results"
+            "directory": "/scratch/gpfs/SIMONSOBS/users/rv4999/testing_pipeline/asteroid_lcurves/ceres_so/results"
+        },
+        {
+            "output_type": "parquet", 
+            "output_source_candidates": false,
+            "output_transient_candidates": false, 
+            "directory": "/scratch/gpfs/SIMONSOBS/users/rv4999/testing_pipeline/asteroid_lcurves/ceres_so/parquet"
         }
     ]
 }
