@@ -66,6 +66,22 @@ class ParquetOutput(SourceOutput):
         name = self._get_map_stub_for_filename(map_name=map_name, mapcat_id=map_id)
         return self.directory / f"{name}_ancillary_sources.parquet"
 
+    @staticmethod
+    def _socat_id(data: MeasuredSource):
+        """UUID from the catalog crossmatch if there is one, else the source's own id."""
+        if data.crossmatches:
+            return str(data.crossmatches[0].catalog_idx)
+        return str(data.source_id)
+
+    @staticmethod
+    def _display_name(data: MeasuredSource):
+        """Catalog name, falling back to the human-readable source_id."""
+        if data.catalog_name:
+            return data.catalog_name
+        if data.crossmatches and data.crossmatches[0].catalog_name:
+            return data.crossmatches[0].catalog_name
+        return str(data.source_id)
+
     def create_sources(self, measured: list[MeasuredSource]) -> pd.DataFrame:
         """
         Create a DataFrame from the measured sources.
@@ -75,14 +91,18 @@ class ParquetOutput(SourceOutput):
 
         for data in measured:
             for match in data.crossmatches:
-                if match.source_id in output_data:
+                sid = str(match.catalog_idx)
+                # if match.source_id in output_data:
+                #     continue
+                if sid in output_data:
                     continue
 
-                output_data[match.source_id] = {
+                output_data[sid] = {  # match.source_id
                     "ra": match.ra.to_value("deg"),
                     "dec": match.dec.to_value("deg"),
-                    "source_id": match.source_id,
-                    "name": match.catalog_name,
+                    "source_id": sid,  # "source_id": match.source_id,
+                    "name": match.catalog_name
+                    or str(match.source_id),  # "name": match.catalog_name,
                     "variable": True,
                     "extra": {
                         "source_type": data.source_type,
@@ -117,8 +137,8 @@ class ParquetOutput(SourceOutput):
                     "dec_uncertainty": data.err_dec.to_value("deg")
                     if data.err_dec is not None
                     else None,
-                    "source_id": data.source_id,
-                    "name": data.catalog_name,
+                    "source_id": self._socat_id(data),  # "source_id": data.source_id,
+                    "name": self._display_name(data),  # "name": data.catalog_name,
                     "flux": data.flux.to_value("mJy"),
                     "flux_err": data.err_flux.to_value("mJy")
                     if data.err_flux is not None
@@ -173,8 +193,8 @@ class ParquetOutput(SourceOutput):
                     "dec_uncertainty": data.err_dec.to_value("deg")
                     if data.err_dec is not None
                     else None,
-                    "source_id": data.source_id,
-                    "name": data.catalog_name,
+                    "source_id": self._socat_id(data),  # "source_id": data.source_id,
+                    "name": self._display_name(data),  # "name": data.catalog_name,
                     "flux": data.flux.to_value("mJy"),
                     "flux_err": data.err_flux.to_value("mJy")
                     if data.err_flux is not None
@@ -207,9 +227,9 @@ class ParquetOutput(SourceOutput):
         for data in measured:
             output_data.append(
                 {
-                    "source_id": data.source_id,
+                    "source_id": self._socat_id(data),  # "source_id": data.source_id,
                     "measurement_id": data.measurement_id,
-                    "name": data.catalog_name,
+                    "name": self._display_name(data),  # "name": data.catalog_name,
                     "time": data.observation_mean_time.to_datetime(timezone=UTC)
                     if data.observation_mean_time is not None
                     else None,
